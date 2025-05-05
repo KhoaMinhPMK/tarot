@@ -1,98 +1,172 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Tarot App Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Giới thiệu
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Backend API cho ứng dụng Tarot được xây dựng trên framework NestJS, một framework mạnh mẽ cho Node.js được lấy cảm hứng từ Angular. API này cung cấp các chức năng xác thực, quản lý người dùng và các endpoint cơ bản cho ứng dụng.
 
-## Description
+## Công nghệ sử dụng
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **NestJS** - Framework backend chính
+- **TypeORM** - ORM (Object-Relational Mapping) để làm việc với cơ sở dữ liệu
+- **SQLite** - Hệ quản trị cơ sở dữ liệu (có thể thay thế bằng PostgreSQL trong môi trường production)
+- **JWT** (JSON Web Tokens) - Xác thực và phân quyền người dùng
+- **Bcrypt** - Mã hóa mật khẩu
+- **Class-validator & Class-transformer** - Kiểm tra và chuyển đổi dữ liệu
+- **Swagger** - Tài liệu API tự động
 
-## Project setup
+## Cấu trúc dự án
 
-```bash
-$ npm install
+```
+src/
+├── app.controller.ts       # Controller chính của ứng dụng
+├── app.module.ts           # Module chính tích hợp tất cả các module khác
+├── app.service.ts          # Service chính cung cấp các chức năng chung
+├── main.ts                 # Điểm khởi đầu của ứng dụng
+├── auth/                   # Module xác thực
+│   ├── auth.controller.ts  # Xử lý các request liên quan đến xác thực
+│   ├── auth.module.ts      # Cấu hình module xác thực
+│   ├── auth.service.ts     # Logic xử lý xác thực
+│   ├── dto/                # Data Transfer Objects cho xác thực
+│   ├── guards/             # Guards bảo vệ các route
+│   └── strategies/         # Các chiến lược xác thực JWT
+├── common/                 # Module chung
+│   ├── filters/            # Bộ lọc xử lý ngoại lệ
+│   └── interceptors/       # Interceptors ghi log và xử lý dữ liệu
+└── users/                  # Module quản lý người dùng
+    ├── users.controller.ts # Xử lý các request liên quan đến người dùng
+    ├── users.module.ts     # Cấu hình module người dùng
+    ├── users.service.ts    # Logic xử lý dữ liệu người dùng
+    ├── dto/                # Data Transfer Objects cho người dùng
+    └── entities/           # Entities định nghĩa các bảng dữ liệu
 ```
 
-## Compile and run the project
+## Tính năng
 
+### Quản lý người dùng
+- Đăng ký người dùng mới
+- Đăng nhập với username hoặc email
+- Xác thực email
+- Đặt lại mật khẩu
+- Cập nhật thông tin cá nhân
+- Xem danh sách người dùng (admin)
+- Xóa người dùng (admin)
+
+### Xác thực và bảo mật
+- JWT Authentication
+- Hash mật khẩu an toàn với bcrypt
+- Bảo vệ route với Guards
+- Giới hạn tần suất request (Rate limiting)
+- Xử lý ngoại lệ và mã trạng thái HTTP thống nhất
+
+### Chức năng hệ thống
+- Thông tin về hệ thống
+- Kiểm tra trạng thái hoạt động
+- Ghi log chi tiết
+
+## API Endpoints
+
+### App
+- `GET /` - Thông tin tổng quan về API
+- `GET /health` - Kiểm tra trạng thái hoạt động
+- `GET /secure` - Endpoint được bảo vệ để kiểm tra xác thực
+
+### Auth
+- `POST /auth/register` - Đăng ký người dùng mới
+- `POST /auth/login` - Đăng nhập
+- `GET /auth/profile` - Xem thông tin người dùng hiện tại
+- `GET /auth/confirm-email` - Xác nhận email
+- `POST /auth/forgot-password` - Yêu cầu đặt lại mật khẩu
+- `POST /auth/reset-password` - Đặt lại mật khẩu
+
+### Users
+- `GET /users` - Lấy danh sách người dùng (admin)
+- `GET /users/:id` - Lấy thông tin chi tiết người dùng
+- `PUT /users/:id` - Cập nhật thông tin người dùng
+- `DELETE /users/:id` - Xóa người dùng (admin)
+
+## Tài liệu API
+
+API được tài liệu hóa đầy đủ với Swagger tại đường dẫn `/api/docs`. Mỗi endpoint đều có mô tả chi tiết, request body, response và mã trạng thái.
+
+## Cài đặt và chạy dự án
+
+### Yêu cầu
+
+- Node.js (v14 trở lên)
+- NPM hoặc Yarn
+
+### Các bước cài đặt
+
+1. Clone dự án:
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone <repository-url>
+cd tarot_app/backend
 ```
 
-## Run tests
-
+2. Cài đặt các gói phụ thuộc:
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
+3. Tạo file môi trường:
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+cp .env.example .env
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+4. Chạy ứng dụng trong chế độ phát triển:
+```bash
+npm run start:dev
+```
 
-## Resources
+5. Truy cập Swagger UI tại:
+```
+http://localhost:3000/api/docs
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+### Chạy với cơ sở dữ liệu PostgreSQL
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Để sử dụng PostgreSQL thay vì SQLite, hãy sửa file `app.module.ts` và cập nhật các thông tin kết nối trong file .env:
 
-## Support
+```typescript
+TypeOrmModule.forRootAsync({
+  imports: [ConfigModule],
+  inject: [ConfigService],
+  useFactory: (configService: ConfigService) => ({
+    type: 'postgres',
+    host: configService.get('DB_HOST', 'localhost'),
+    port: configService.get('DB_PORT') ? parseInt(configService.get('DB_PORT'), 10) : 5432,
+    username: configService.get('DB_USERNAME', 'postgres'),
+    password: configService.get('DB_PASSWORD', 'postgres'),
+    database: configService.get('DB_DATABASE', 'tarot_app'),
+    entities: [path.join(__dirname, '**', '*.entity.{ts,js}')],
+    synchronize: configService.get('NODE_ENV') !== 'production',
+    logging: configService.get('DATABASE_LOGGING', 'false') === 'true',
+  }),
+}),
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Triển khai
 
-## Stay in touch
+### Biên dịch dự án
+```bash
+npm run build
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Chạy ứng dụng trong môi trường production
+```bash
+npm run start:prod
+```
 
-## License
+## Bảo mật
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Lưu ý rằng `synchronize: true` chỉ nên được sử dụng trong môi trường phát triển, không nên sử dụng trong môi trường sản xuất để tránh mất dữ liệu
+- JWT secret và các thông tin nhạy cảm khác nên được lưu trữ trong biến môi trường
+- Đảm bảo cài đặt CORS chính xác cho domain frontend của bạn
+
+## Tác giả
+
+- [Tên tác giả]
+
+## Giấy phép
+
+[Thông tin giấy phép]
