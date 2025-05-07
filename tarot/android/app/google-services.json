@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "38649926622",
+    "project_id": "tarot-41401",
+    "storage_bucket": "tarot-41401.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:38649926622:android:63e3fdc810a5b7d530434f",
+        "android_client_info": {
+          "package_name": "com.tarotonline.tung"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "38649926622-nvolfd1kuhu4ujmq9lsg878g68igmusu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tarotonline.tung",
+            "certificate_hash": "3375211f2d6882ed7c134e2fdf51eabe8d2769b9"
+          }
+        },
+        {
+          "client_id": "38649926622-vtto2q0ct00vbqla5bdh1e2h7dvip2c4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tarotonline.tung",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "38649926622-sg13uvcvl3hkubn2m1f9k3jl3mn3dvlh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4KCWdNIA-N3XfAXpXg-YoADPPLfCAQb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "38649926622-sg13uvcvl3hkubn2m1f9k3jl3mn3dvlh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
