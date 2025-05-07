@@ -40,8 +40,9 @@ async function bootstrap() {
     .setTitle('Tarot App API')
     .setDescription('API cho hệ thống xác thực và quản lý người dùng của ứng dụng Tarot')
     .setVersion('1.0')
-    .addTag('auth', 'Các API liên quan đến xác thực')
-    .addTag('users', 'Các API liên quan đến người dùng')
+    .addTag('1-app', 'Các API liên quan đến hệ thống')
+    .addTag('2-auth', 'Các API liên quan đến xác thực')
+    .addTag('3-users', 'Các API liên quan đến người dùng')
     .addBearerAuth(
       {
         type: 'http',

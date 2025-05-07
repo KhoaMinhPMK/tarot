@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsString, IsOptional, MinLength, IsUrl, IsBoolean } from 'class-validator';
+import { IsEmail, IsString, IsOptional, MinLength, IsUrl, IsBoolean, IsDate } from 'class-validator';
 
 /**
  * DTO cho việc cập nhật thông tin người dùng
@@ -55,4 +55,16 @@ export class UpdateUserDto {
   @IsString({ message: 'Mật khẩu hiện tại phải là chuỗi' })
   @IsOptional()
   currentPassword?: string;
+
+  /**
+   * Các trường sau đây được sử dụng nội bộ bởi AuthService
+   * Không được hiển thị trong API docs và không thể được gửi bởi client
+   */
+  @IsString()
+  @IsOptional()
+  refreshToken?: string;
+
+  @IsDate()
+  @IsOptional()
+  refreshTokenExpires?: Date;
 }

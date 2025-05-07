@@ -15,6 +15,7 @@ import {
 import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { 
   ApiTags, 
@@ -226,5 +227,49 @@ export class AuthController {
     return {
       message: 'Mật khẩu đã được đặt lại thành công',
     };
+  }
+
+  /**
+   * Làm mới access token bằng refresh token
+   * @param refreshTokenDto Đối tượng chứa refresh token
+   * @returns Access token và refresh token mới
+   */
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Làm mới access token bằng refresh token' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Trả về access token và refresh token mới' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Refresh token không hợp lệ hoặc đã hết hạn' 
+  })
+  @ApiBody({ type: RefreshTokenDto })
+  async refresh(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this.authService.refreshTokens(refreshTokenDto.refreshToken);
+  }
+
+  /**
+   * Đăng xuất người dùng
+   * @param req Request chứa thông tin người dùng
+   * @returns Thông báo đăng xuất thành công
+   */
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Đăng xuất người dùng' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Đăng xuất thành công' 
+  })
+  @ApiResponse({ 
+    status: 401, 
+    description: 'Không được xác thực' 
+  })
+  async logout(@Req() req) {
+    await this.authService.logout(req.user.userId);
+    return { message: 'Đăng xuất thành công' };
   }
 }

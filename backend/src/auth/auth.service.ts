@@ -83,14 +83,17 @@ export class AuthService {
         throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không chính xác');
       }
 
-      // Tạo access token
-      const accessToken = this.generateAccessToken(user);
+      // Tạo access token và refresh token
+      const tokens = await this.generateTokens(user);
+
+      // Lưu refresh token vào database
+      await this.updateRefreshToken(user.id, tokens.refresh_token);
 
       // Loại bỏ các thông tin nhạy cảm trước khi trả về
-      const { password, emailConfirmationToken, passwordResetToken, passwordResetExpires, ...userInfo } = user;
+      const { password, emailConfirmationToken, passwordResetToken, passwordResetExpires, refreshToken, refreshTokenExpires, ...userInfo } = user;
       
       return {
-        access_token: accessToken,
+        ...tokens,
         user: userInfo,
       };
     } catch (error) {
@@ -151,6 +154,57 @@ export class AuthService {
   }
 
   /**
+   * Làm mới access token bằng refresh token
+   * @param refreshToken Refresh token
+   * @returns Object chứa access_token và refresh_token mới
+   */
+  async refreshTokens(refreshToken: string) {
+    try {
+      // Xác thực refresh token
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: this.configService.get('JWT_REFRESH_SECRET', 'super-secret-refresh-key'),
+      });
+
+      // Tìm người dùng theo ID từ payload
+      const user = await this.usersService.findOneById(payload.sub);
+      if (!user || !user.refreshToken) {
+        throw new UnauthorizedException('Refresh token không hợp lệ');
+      }
+
+      // Kiểm tra xem refresh token có trùng khớp không
+      const refreshTokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+      if (!refreshTokenMatches) {
+        throw new UnauthorizedException('Refresh token không hợp lệ');
+      }
+
+      // Kiểm tra xem refresh token có hết hạn không
+      if (user.refreshTokenExpires && user.refreshTokenExpires < new Date()) {
+        throw new UnauthorizedException('Refresh token đã hết hạn');
+      }
+
+      // Tạo tokens mới (access token và refresh token)
+      const tokens = await this.generateTokens(user);
+      
+      // Cập nhật refresh token mới vào database
+      await this.updateRefreshToken(user.id, tokens.refresh_token);
+      
+      return tokens;
+    } catch (error) {
+      this.logger.error(`Lỗi khi làm mới token: ${error.message}`, error.stack);
+      throw new UnauthorizedException('Không thể làm mới token: ' + error.message);
+    }
+  }
+
+  /**
+   * Đăng xuất người dùng
+   * @param userId ID của người dùng
+   */
+  async logout(userId: number): Promise<boolean> {
+    await this.removeRefreshToken(userId);
+    return true;
+  }
+
+  /**
    * Tìm người dùng theo username hoặc email
    * @param usernameOrEmail Username hoặc email của người dùng
    * @returns Thông tin người dùng hoặc null nếu không tìm thấy
@@ -191,6 +245,67 @@ export class AuthService {
   }
 
   /**
+   * Tạo cả access token và refresh token
+   * @param user Thông tin người dùng
+   * @returns Object chứa access_token và refresh_token
+   */
+  async generateTokens(user: any) {
+    const payload = { 
+      sub: user.id, 
+      username: user.username,
+      email: user.email,
+      isEmailConfirmed: user.isEmailConfirmed
+    };
+    
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get('JWT_SECRET', 'super-secret-key'),
+        expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN', '15m')
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: this.configService.get('JWT_REFRESH_SECRET', 'super-secret-refresh-key'),
+        expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '7d')
+      })
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken
+    };
+  }
+
+  /**
+   * Cập nhật refresh token cho người dùng
+   * @param userId ID của người dùng
+   * @param refreshToken Refresh token mới
+   */
+  async updateRefreshToken(userId: number, refreshToken: string): Promise<void> {
+    // Hash refresh token trước khi lưu vào database để bảo mật hơn
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    
+    // Thiết lập thời gian hết hạn cho refresh token (ví dụ: 7 ngày)
+    const expiresDate = new Date();
+    expiresDate.setDate(expiresDate.getDate() + 7);
+    
+    // Cập nhật vào database
+    await this.usersService.update(userId, {
+      refreshToken: hashedRefreshToken,
+      refreshTokenExpires: expiresDate,
+    });
+  }
+
+  /**
+   * Xóa refresh token của người dùng (khi đăng xuất)
+   * @param userId ID của người dùng
+   */
+  async removeRefreshToken(userId: number): Promise<void> {
+    await this.usersService.update(userId, {
+      refreshToken: undefined,
+      refreshTokenExpires: undefined,
+    });
+  }
+
+  /**
    * Tạo JWT access token
    * @param user Thông tin người dùng
    * @returns JWT access token
@@ -205,7 +320,7 @@ export class AuthService {
     
     return this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET', 'super-secret-key'),
-      expiresIn: this.configService.get('JWT_EXPIRES_IN', '1h')
+      expiresIn: this.configService.get('JWT_ACCESS_EXPIRES_IN', '15m')
     });
   }
 

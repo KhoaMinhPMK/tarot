@@ -43,6 +43,16 @@ export class User {
   @Column({ nullable: true })
   passwordResetExpires: Date;
 
+  @Column({ nullable: true })
+  @Exclude() // Loại trừ trường này khi chuyển đổi thành JSON
+  @ApiHideProperty() // Ẩn trường này trong Swagger docs
+  refreshToken: string;
+
+  @Column({ nullable: true })
+  @Exclude() // Loại trừ trường này khi chuyển đổi thành JSON
+  @ApiHideProperty() // Ẩn trường này trong Swagger docs
+  refreshTokenExpires: Date;
+
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

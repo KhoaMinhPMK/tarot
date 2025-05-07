@@ -1,1 +1,4 @@
 "# tarot" 
+Debug Keystore:SHA1: 5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25
+Release Keystore:
+SHA1: 33:75:21:1F:2D:68:82:ED:7C:13:4E:2F:DF:51:EA:BE:8D:27:69:B9
